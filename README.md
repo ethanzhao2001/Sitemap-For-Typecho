@@ -16,4 +16,6 @@
 
 * v1.1.0 修改推送规则
 
+*卸载插件请先禁用插件，不要直接删除插件。*
+
 博客：[https://www.zhaoyingtian.com/archives/93.html](https://www.zhaoyingtian.com/archives/93.html)

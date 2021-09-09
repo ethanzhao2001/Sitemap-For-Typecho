@@ -8,10 +8,6 @@
 
 不支持发布文章自动更新`sitemap`及自动推送，可能会影响文章发布速度所以没有做支持
 
-![](https://cdn.zhaoyingtian.com/blog/2021/09/06/142439.png)
-
-![](https://cdn.zhaoyingtian.com/blog/2021/09/06/101409.png)
-
 ## 更新
 
 * v1.1.0 修改推送规则

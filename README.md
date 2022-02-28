@@ -11,7 +11,9 @@
 ## 更新
 
 * v1.1.0 修改推送规则
+* v1.2.0 修改缓存机制，以前是存数据库会导致内容超出长度，现在改为存储缓存文件
+下载
 
-*卸载插件请先禁用插件，不要直接删除插件。*
+*卸禁用后删除插件，再更新！插件目录设置777权限*
 
 博客：[https://www.zhaoyingtian.com/archives/93.html](https://www.zhaoyingtian.com/archives/93.html)

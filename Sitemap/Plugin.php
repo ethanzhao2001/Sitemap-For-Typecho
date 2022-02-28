@@ -5,7 +5,7 @@
  * 
  * @package Sitemap
  * @author 呆小萌
- * @version 1.1.0
+ * @version 1.2.0
  * @link https://www.zhaoyingtian.com/archives/93.html
  */
 class Sitemap_Plugin implements Typecho_Plugin_Interface
@@ -21,8 +21,8 @@ class Sitemap_Plugin implements Typecho_Plugin_Interface
     {
         Helper::addRoute('sitemap', '/sitemap.xml', 'Sitemap_XML', 'action');
         Helper::addPanel(1, 'Sitemap/Push.php', '推送百度', '推送百度', 'administrator');
-        require_once("Action.php");
-        update('activate');
+        require_once("Action.php");//引入
+        update('activate');//激活xml
     }
 
     /**
@@ -35,13 +35,10 @@ class Sitemap_Plugin implements Typecho_Plugin_Interface
      */
     public static function deactivate()
     {
-        $db = Typecho_Db::get();
-        $delete = $db->delete('table.options')->where('name = ?', 'Sitemap');
-        $db->query($delete);
-        $delete = $db->delete('table.options')->where('name = ?', 'Sitemap_Time');
-        $db->query($delete);
         Helper::removeRoute('sitemap');
         Helper::removePanel(1, 'Sitemap/Push.php');
+        $dir = __TYPECHO_ROOT_DIR__ . __TYPECHO_PLUGIN_DIR__ . '/Sitemap/sitemap';
+        unlink($dir);
     }
 
     /**
@@ -72,8 +69,8 @@ class Sitemap_Plugin implements Typecho_Plugin_Interface
      */
     public static function update_sitemap()
     {
-        require_once("Action.php");
-        update('update');
+        require_once("Action.php");//引入
+        update('update');//更新xml
         header("location:" . Typecho_Common::url('/options-plugin.php?config=Sitemap', Helper::options()->adminUrl));
     }
     /**

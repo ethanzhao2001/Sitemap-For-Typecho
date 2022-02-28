@@ -80,18 +80,18 @@ function update($function)
 		$tag_result = $tag_result . "\t\t<priority>0.5</priority>\n";
 		$tag_result = $tag_result . "\t</url>\n";
 	}
-	$result = $header . $index_result . $page_result . $category_result . $archive_result . $tag_result . $footer;
-	if ($function === 'activate') {
-		$insert = $db->insert('table.options')->rows(array('name' => 'Sitemap', 'value' => $result));
-		$db->query($insert);
-		$insert = $db->insert('table.options')->rows(array('name' => 'Sitemap_Time', 'value' => time()));
-		$db->query($insert);
+	$result = $header . $index_result . $page_result . $category_result . $archive_result . $tag_result . $footer;//xml内容
+	$dir = __TYPECHO_ROOT_DIR__ . __TYPECHO_PLUGIN_DIR__ . '/Sitemap/sitemap';
+	if ($function === 'activate') {//激活
+		$myfile = fopen($dir, "w");
+		fwrite($myfile, $result);
+		fclose($myfile);
 	}
-	if ($function === 'update') {
-		$update = $db->update('table.options')->rows(array('value' => $result))->where('name = ?', 'Sitemap');
-		$db->query($update);
-		$update = $db->update('table.options')->rows(array('value' => time()))->where('name = ?', 'Sitemap_Time');
-		$db->query($update);
+	if ($function === 'update') {//更新
+		unlink($dir);
+		$myfile = fopen($dir, "w");
+		fwrite($myfile, $result);
+		fclose($myfile);
 		Typecho_Widget::widget('Widget_Notice')->set(_t("更新 sitemap.xml 成功"), 'success');
 	}
 }

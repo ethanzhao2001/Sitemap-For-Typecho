@@ -1,5 +1,7 @@
 # Sitemap-For-Typecho
 
+用着好的话麻烦给个star，十分感谢！！！
+
 ## 功能
 
 1、为`Typecho`生成`sitemap`包含**首页、独立页面、分类、标签、文章**

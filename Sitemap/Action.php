@@ -35,7 +35,7 @@ function update($function)
 		$page_result = $page_result . "\t</url>\n";
 	}
 	//分类
-	$categorys = $db->fetchAll($db->select()->from('typecho_metas')
+	$categorys = $db->fetchAll($db->select()->from('table.metas')
 		->where('table.metas.type = ?', 'category'));
 	foreach ($categorys as $category) {
 		$type = $category['type'];
@@ -67,7 +67,7 @@ function update($function)
 		$archive_result = $archive_result . "\t</url>\n";
 	}
 	//tag
-	$tags = $db->fetchAll($db->select()->from('typecho_metas')
+	$tags = $db->fetchAll($db->select()->from('table.metas')
 		->where('table.metas.type = ?', 'tag'));
 	foreach ($tags as $tag) {
 		$type = $tag['type'];
@@ -117,7 +117,7 @@ function submit($function)
 			array_push($urls, $page['permalink']);
 		}
 		//分类
-		$categorys = $db->fetchAll($db->select()->from('typecho_metas')
+		$categorys = $db->fetchAll($db->select()->from('table.metas')
 			->where('table.metas.type = ?', 'category'));
 		foreach ($categorys as $category) {
 			$type = $category['type'];

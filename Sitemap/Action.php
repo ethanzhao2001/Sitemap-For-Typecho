@@ -139,10 +139,12 @@ function submit($function)
 			for ($x = 0; $x < 20; $x++) {
 				$archive = $archives[$x];
 				$type = $archive['type'];
-				$routeExists = (NULL != Typecho_Router::get($type));
-				$archive['pathinfo'] = $routeExists ? Typecho_Router::url($type, $archive) : '#';
-				$archive['permalink'] = Typecho_Common::url($archive['pathinfo'], $options->index);
-				array_push($urls, $archive['permalink']);
+				if(gettype($type) != "NULL"){
+					$routeExists = (NULL != Typecho_Router::get($type));
+					$archive['pathinfo'] = $routeExists ? Typecho_Router::url($type, $archive) : '#';
+					$archive['permalink'] = Typecho_Common::url($archive['pathinfo'], $options->index);
+					array_push($urls, $archive['permalink']);
+				}
 			}
 		}
 

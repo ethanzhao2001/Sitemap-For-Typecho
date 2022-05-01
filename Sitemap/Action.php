@@ -225,4 +225,3 @@ function submit($function, $web) //推送百度
 		return "success";
 	}
 }
-                                             

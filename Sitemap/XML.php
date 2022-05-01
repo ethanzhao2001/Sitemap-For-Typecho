@@ -12,7 +12,7 @@ class Sitemap_XML extends Typecho_Widget implements Widget_Interface_Do
         header("Content-Type: application/xml");
         if (time() - $XmlTime > $cachetime) {
             require_once("Action.php");
-            update('update');
+            update('update','auto');
         };
         //返回xml
         $myfile = fopen($dir, "r");

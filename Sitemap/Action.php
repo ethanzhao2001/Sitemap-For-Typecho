@@ -1,5 +1,5 @@
 <?php
-function update($function)
+function update($function, $web)
 {
 	//更新sitemap.xml
 	$db = Typecho_Db::get();
@@ -80,23 +80,46 @@ function update($function)
 		$tag_result = $tag_result . "\t\t<priority>0.5</priority>\n";
 		$tag_result = $tag_result . "\t</url>\n";
 	}
-	$result = $header . $index_result . $page_result . $category_result . $archive_result . $tag_result . $footer;//xml内容
+	$result = $header . $index_result . $page_result . $category_result . $archive_result . $tag_result . $footer; //xml内容
 	$dir = __TYPECHO_ROOT_DIR__ . __TYPECHO_PLUGIN_DIR__ . '/Sitemap/sitemap';
-	if ($function === 'activate') {//激活
+	if ($function === 'activate') { //激活
 		$myfile = fopen($dir, "w");
 		fwrite($myfile, $result);
 		fclose($myfile);
 	}
-	if ($function === 'update') {//更新
+	if ($function === 'update') { //更新
 		unlink($dir);
 		$myfile = fopen($dir, "w");
 		fwrite($myfile, $result);
 		fclose($myfile);
-		Typecho_Widget::widget('Widget_Notice')->set(_t("更新 sitemap.xml 成功"), 'success');
+		//获取时间
+		$time = date('Y-m-d H:i:s', time());
+		//写入日志
+		$log = '【' . $time . '】' . $web . '成功更新sitemap.xml' . "\n";
+		if (Helper::options()->plugin('Sitemap')->PluginLog == 1) {
+			file_put_contents(__TYPECHO_ROOT_DIR__ . __TYPECHO_PLUGIN_DIR__ . '/Sitemap/log.txt', $log, FILE_APPEND);
+		}
+		//返回提示
+		if ($web === 'web') {
+			Typecho_Widget::widget('Widget_Notice')->set(_t("更新 sitemap.xml 成功"), 'success');
+		}
+		if ($web === 'api') {
+			return "success";
+		}
 	}
 }
-function submit($function)
-{ //推送百度
+function submit($function, $web)//推送百度
+{
+	//检查baidu_url
+	if (Helper::options()->plugin('Sitemap')->baidu_url == NULL) {
+		if ($web === 'web') {
+			Typecho_Widget::widget('Widget_Notice')->set(_t("请先设置百度站长平台的站点地址"), 'error');
+			return;
+		}
+		if ($web === 'api') {
+			return "BadiuApi is null";
+		}
+	}
 	$db = Typecho_Db::get();
 	$options = Typecho_Widget::widget('Widget_Options');
 	if ($function === 'typecho') {
@@ -136,13 +159,26 @@ function submit($function)
 			->where('table.contents.type = ?', 'post')
 			->order('table.contents.created', Typecho_Db::SORT_DESC));
 		if ($function === 'archive') {
-			for ($x = 0; $x < 20; $x++) {
-				$archive = $archives[$x];
-				$type = $archive['type'];
-				$routeExists = (NULL != Typecho_Router::get($type));
-				$archive['pathinfo'] = $routeExists ? Typecho_Router::url($type, $archive) : '#';
-				$archive['permalink'] = Typecho_Common::url($archive['pathinfo'], $options->index);
-				array_push($urls, $archive['permalink']);
+			//获取文章数量
+			$current = Typecho_Widget::widget('Widget_Archive')->___currentPage;
+			//文章小于20篇
+			if ($current >= 20) {
+				for ($x = 0; $x < 20; $x++) {
+					$archive = $archives[$x];
+					$type = $archive['type'];
+					$routeExists = (NULL != Typecho_Router::get($type));
+					$archive['pathinfo'] = $routeExists ? Typecho_Router::url($type, $archive) : '#';
+					$archive['permalink'] = Typecho_Common::url($archive['pathinfo'], $options->index);
+					array_push($urls, $archive['permalink']);
+				}
+			} else {
+				if ($web === 'web') {
+					Typecho_Widget::widget('Widget_Notice')->set(_t("文章小于20篇"), 'error');
+					return;
+				}
+				if ($web === 'api') {
+					return "failed";
+				}
 			}
 		}
 
@@ -159,8 +195,6 @@ function submit($function)
 	foreach ($urls as $url) {
 		$url_list = $url_list . "\n" . $url;
 	}
-
-
 	$api = Helper::options()->plugin('Sitemap')->baidu_url;
 	$ch = curl_init();
 	$options =  array(
@@ -173,6 +207,21 @@ function submit($function)
 	curl_setopt_array($ch, $options);
 	$result_json = curl_exec($ch);
 	$result = json_decode($result_json, true);
-	Typecho_Widget::widget('Widget_Notice')->set(_t("推送完成"), 'success');
-	return '成功推送' . $result['success'] . '条，今日剩余可推送' . $result['remain'] . '条' . "\n" . "\n" . $url_list;
+	//获取时间
+	$time = date('Y-m-d H:i:s', time());
+	//写入日志
+	$log = '【' . $time . '】' . $web . '成功推送' . $result['success'] . '条，今日剩余可推送' . $result['remain'] . '条' . $url_list . "\n";
+	if (Helper::options()->plugin('Sitemap')->PluginLog == 1) {
+		file_put_contents(__TYPECHO_ROOT_DIR__ . __TYPECHO_PLUGIN_DIR__ . '/Sitemap/log.txt', $log, FILE_APPEND);
+	}
+	//返回提示
+	if ($web === 'web') {
+		Typecho_Widget::widget('Widget_Notice')->set(_t("推送完成"), 'success');
+		//替换$url_list中的\n为<br>
+		$url_list = str_replace("\n", "<br>", $url_list);
+		return '成功推送' . $result['success'] . '条，今日剩余可推送' . $result['remain'] . '条' . "\n" . "\n" . "<p>".$url_list."</p>";
+	}
+	if ($web === 'api') {
+		return "success";
+	}
 }

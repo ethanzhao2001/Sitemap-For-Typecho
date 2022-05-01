@@ -11,7 +11,7 @@ if (!$user->pass('administrator')) {
 }
 if ($_GET['action'] === 'update_sitemap') {
     require_once("Action.php");
-    update('update');
+    update('update','web');
     header("location:" . Typecho_Common::url('/extending.php?panel=Sitemap%2FPush.php', Helper::options()->adminUrl));
 }
 
@@ -40,20 +40,20 @@ if ($_GET['action'] === 'update_sitemap') {
             <?php
             if ($_GET['action'] === 'baidu_typecho') {
                 require_once("Action.php");
-                echo '<p style="color:green">推送完成，稍后自动返回页面</p>';
-                echo '<p>' . submit('typecho') . '</p>';
+                echo '<p style="color:green">稍后自动返回页面</p>';
+                echo '<p>' . submit('typecho','web') . '</p>';
                 header("Refresh:10;url=/admin/extending.php?panel=Sitemap%2FPush.php");
             }
             if ($_GET['action'] === 'baidu_archive_all') {
                 require_once("Action.php");
-                echo '<p style="color:green">推送完成，稍后自动返回页面</p>';
-                echo '<p>' . submit('archive_all') . '</p>';
+                echo '<p style="color:green">稍后自动返回页面</p>';
+                echo '<p>' . submit('archive_all','web') . '</p>';
                 header("Refresh:10;url=/admin/extending.php?panel=Sitemap%2FPush.php");
             }
             if ($_GET['action'] === 'baidu_archive') {
                 require_once("Action.php");
-                echo '<p style="color:green">推送完成，稍后自动返回页面</p>';
-                echo '<p>' . submit('archive') . '</p>';
+                echo '<p style="color:green">稍后自动返回页面</p>';
+                echo '<p>' . submit('archive','web') . '</p>';
                 header("Refresh:10;url=/admin/extending.php?panel=Sitemap%2FPush.php");
             }
             ?>

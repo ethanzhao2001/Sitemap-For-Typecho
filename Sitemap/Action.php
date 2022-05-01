@@ -177,7 +177,7 @@ function submit($function, $web) //推送百度
 					return;
 				}
 				if ($web === 'api') {
-					return "failed";
+					return "Number of articles less than 20";
 				}
 			}
 		}

@@ -108,7 +108,7 @@ function update($function, $web)
 		}
 	}
 }
-function submit($function, $web)//推送百度
+function submit($function, $web) //推送百度
 {
 	//检查baidu_url
 	if (Helper::options()->plugin('Sitemap')->baidu_url == NULL) {
@@ -160,9 +160,9 @@ function submit($function, $web)//推送百度
 			->order('table.contents.created', Typecho_Db::SORT_DESC));
 		if ($function === 'archive') {
 			//获取文章数量
-			$current = Typecho_Widget::widget('Widget_Archive')->___currentPage;
-			//文章小于20篇
-			if ($current >= 20) {
+			$stat = Typecho_Widget::widget('Widget_Stat');
+			$postnum = $stat->myPublishedPostsNum;
+			if ($postnum >= 20) {
 				for ($x = 0; $x < 20; $x++) {
 					$archive = $archives[$x];
 					$type = $archive['type'];
@@ -219,9 +219,10 @@ function submit($function, $web)//推送百度
 		Typecho_Widget::widget('Widget_Notice')->set(_t("推送完成"), 'success');
 		//替换$url_list中的\n为<br>
 		$url_list = str_replace("\n", "<br>", $url_list);
-		return '成功推送' . $result['success'] . '条，今日剩余可推送' . $result['remain'] . '条' . "\n" . "\n" . "<p>".$url_list."</p>";
+		return '成功推送' . $result['success'] . '条，今日剩余可推送' . $result['remain'] . '条' . "\n" . "\n" . "<p>" . $url_list . "</p>";
 	}
 	if ($web === 'api') {
 		return "success";
 	}
 }
+                                             

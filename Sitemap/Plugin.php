@@ -67,7 +67,7 @@ class Sitemap_Plugin implements Typecho_Plugin_Interface
         $form->addInput($AutoPush);
         $AutoSitemap = new Typecho_Widget_Helper_Form_Element_Radio('AutoSitemap', array(0 => _t('不开启'), 1 => _t('开启')), 0, _t('自动更新Sitemap'), '发布文章更新Sitemap，可能降低发布速度不推荐开启');
         $form->addInput($AutoSitemap);
-        $PluginLog = new Typecho_Widget_Helper_Form_Element_Radio('PluginLog', array(0 => _t('不开启'), 1 => _t('开启')), 0, _t('插件日志'), '将推送日志和Sitemap被访问的日志存入插件目录下');
+        $PluginLog = new Typecho_Widget_Helper_Form_Element_Radio('PluginLog', array(0 => _t('不开启'), 1 => _t('开启')), 0, _t('插件日志'), '将推送日志和Sitemap更新日志存入插件目录下');
         $form->addInput($PluginLog);
         $Btn = new Typecho_Widget_Helper_Form_Element_Submit();
         $Btn->value(_t('更新 sitemap.xml'));

@@ -48,6 +48,10 @@
 
 修改手动推送后显示链接乱的问题
 
+### 1.3.1
+
+修复非默认后台入口（/admin/）的推送功能无法使用
+
 *卸禁用后删除插件，再更新！插件目录设置777权限*
 
 博客：[https://www.zhaoyingtian.com/archives/93.html](https://www.zhaoyingtian.com/archives/93.html)

@@ -192,6 +192,7 @@ function submit($function, $web) //推送百度
 			}
 		}
 	}
+	$url_list = "";
 	foreach ($urls as $url) {
 		$url_list = $url_list . "\n" . $url;
 	}

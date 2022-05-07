@@ -5,7 +5,7 @@
  * 
  * @package Sitemap
  * @author 呆小萌
- * @version 1.3.1
+ * @version 1.3.2
  * @link https://www.zhaoyingtian.com/archives/93.html
  */
 class Sitemap_Plugin implements Typecho_Plugin_Interface
@@ -54,7 +54,7 @@ class Sitemap_Plugin implements Typecho_Plugin_Interface
      */
     public static function config(Typecho_Widget_Helper_Form $form)
     {
-        if ($_GET['action'] === 'update_sitemap') {
+        if (isset($_GET['action']) && $_GET['action']=== 'update_sitemap') {
             self::update_sitemap();
         }
         $sitemap_cachetime = new Typecho_Widget_Helper_Form_Element_Text('sitemap_cachetime', NULL, '7', _t('Sitemap 缓存时间'), '单位（天）');

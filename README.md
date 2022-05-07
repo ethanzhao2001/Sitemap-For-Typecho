@@ -52,6 +52,10 @@
 
 修复非默认后台入口`/admin/`的推送功能无法使用
 
+### 1.3.2
+
+修复`php8`环境下的的报错
+
 *卸禁用后删除插件，再更新！插件目录设置777权限*
 
 博客：[https://www.zhaoyingtian.com/archives/93.html](https://www.zhaoyingtian.com/archives/93.html)

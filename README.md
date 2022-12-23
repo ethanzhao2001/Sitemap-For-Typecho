@@ -56,6 +56,10 @@
 
 修复`php8`环境下的的报错
 
+### 1.3.3
+
+修复错误 永久链接使用按分类归档时文章链接错误
+
 *卸禁用后删除插件，再更新！插件目录设置777权限*
 
 博客：[https://www.zhaoyingtian.com/archives/93.html](https://www.zhaoyingtian.com/archives/93.html)

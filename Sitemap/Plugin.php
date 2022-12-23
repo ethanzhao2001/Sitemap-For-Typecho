@@ -5,7 +5,7 @@
  * 
  * @package Sitemap
  * @author 呆小萌
- * @version 1.3.2
+ * @version 1.3.3
  * @link https://www.zhaoyingtian.com/archives/93.html
  */
 class Sitemap_Plugin implements Typecho_Plugin_Interface

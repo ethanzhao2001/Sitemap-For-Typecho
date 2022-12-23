@@ -55,6 +55,13 @@ function update($function, $web)
 		->where('table.contents.type = ?', 'post')
 		->order('table.contents.created', Typecho_Db::SORT_DESC));
 	foreach ($archives as $archive) {
+		//获取文章分类
+		$archive['category'] = urlencode(current(Typecho_Common::arrayFlatten($db->fetchAll($db->select()->from('table.metas')
+			->join('table.relationships', 'table.relationships.mid = table.metas.mid')
+			->where('table.relationships.cid = ?', $archive['cid'])
+			->where('table.metas.type = ?', 'category')
+			->order('table.metas.order', Typecho_Db::SORT_ASC)), 'slug')));
+		//生成url
 		$type = $archive['type'];
 		$routeExists = (NULL != Typecho_Router::get($type));
 		$archive['pathinfo'] = $routeExists ? Typecho_Router::url($type, $archive) : '#';

@@ -11,7 +11,14 @@
 3、支持文章永久链接中的全部变量，包括以下。不支持分类永久链接的`{directory}`参数
 
 ```
-可用参数: {cid} 日志 ID, {slug} 日志缩略名, {category} 分类, {directory} 多级分类, {year} 年, {month} 月, {day} 日
+可用参数: 
+{cid} 日志 ID
+{slug} 日志缩略名
+{category} 分类
+{directory} 多级分类
+{year} 年
+{month} 月
+{day} 日
 ```
 
 ~~不支持发布文章自动更新`sitemap`及自动推送，可能会影响文章发布速度所以没有做支持~~

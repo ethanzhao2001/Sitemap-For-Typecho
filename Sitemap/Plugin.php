@@ -5,7 +5,7 @@
  * 
  * @package Sitemap
  * @author 呆小萌
- * @version 1.5.1
+ * @version 1.6
  * @link https://www.zhaoyingtian.com/archives/93.html
  */
 class Sitemap_Plugin implements Typecho_Plugin_Interface
@@ -63,9 +63,9 @@ class Sitemap_Plugin implements Typecho_Plugin_Interface
         $form->addInput($baidu_url);
         $web_token = new Typecho_Widget_Helper_Form_Element_Text('api_token', NULL, Typecho_Common::randString(32), _t('API token'), '自动生成无需修改，留空则不开启API功能<br>' . Helper::options()->index . '/sitemap-api?sitemap=[update]&push=[main/all/new]&token=[API_TOKEN]');
         $form->addInput($web_token);
-        $AutoPush = new Typecho_Widget_Helper_Form_Element_Radio('AutoPush', array(0 => _t('不开启'), 1 => _t('开启')), 0, _t('自动推送文章'), '发布文章自动推送当前文章，自定义文章路径需使用wordpress风格，或其他带有{slug}的路径');
+        $AutoPush = new Typecho_Widget_Helper_Form_Element_Radio('AutoPush', array(0 => _t('不开启'), 1 => _t('开启')), 0, _t('自动推送文章'), '发布文章自动推送当前文章');
         $form->addInput($AutoPush);
-        $AutoSitemap = new Typecho_Widget_Helper_Form_Element_Radio('AutoSitemap', array(0 => _t('不开启'), 1 => _t('开启')), 0, _t('自动更新Sitemap'), '发布文章更新Sitemap，可能降低发布速度不推荐开启');
+        $AutoSitemap = new Typecho_Widget_Helper_Form_Element_Radio('AutoSitemap', array(0 => _t('不开启'), 1 => _t('开启')), 0, _t('自动更新Sitemap'), '发布文章更新Sitemap，可能降低文章发布速度');
         $form->addInput($AutoSitemap);
         $PluginLog = new Typecho_Widget_Helper_Form_Element_Radio('PluginLog', array(0 => _t('不开启'), 1 => _t('开启')), 0, _t('插件日志'), '将推送日志和Sitemap更新日志存入插件目录下');
         $form->addInput($PluginLog);
@@ -118,13 +118,13 @@ class Sitemap_Plugin implements Typecho_Plugin_Interface
         if( 'publish' != $contents['visibility'] || $contents['created'] > time()){
             return;
         }
-        //获取文章类型
-        $type = $contents['type'];
-        //获取路由信息
-        $routeExists = (NULL != Typecho_Router::get($type)); 
-        //生成永久连接
-        $path_info = $routeExists ? Typecho_Router::url($type, $contents) : '#';
-        $url = Typecho_Common::url($path_info, Helper::options()->index);
+        //通过创建时间查找cid
+        $db = Typecho_Db::get();
+        $cid = $db->fetchRow($db->select('cid')->from('table.contents')->where('created = ?', $contents['created']));
+        //引用action.php调用getPermalink
+        require_once("Action.php");
+        //获取文章链接
+        $url = getPermalink($cid);
         $urls = array(
             $url,
         );

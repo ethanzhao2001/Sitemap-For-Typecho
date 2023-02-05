@@ -85,6 +85,10 @@
 
 更新 支持分类永久链接的`{directory}`参数
 
+### 1.6
+
+修复 各类自定义文章链接自动推送百度出现的链接错误（建议所有用户更新到此版本）
+
 *卸禁用后删除插件，再更新！插件目录设置777权限*
 
 博客：[https://www.zhaoyingtian.com/archives/93.html](https://www.zhaoyingtian.com/archives/93.html)

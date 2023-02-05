@@ -55,19 +55,13 @@ function update($function, $web)
 		->where('table.contents.type = ?', 'post')
 		->order('table.contents.created', Typecho_Db::SORT_DESC));
 	foreach ($archives as $archive) {
-		//获取文章分类
-		$archive['category'] = urlencode(current(Typecho_Common::arrayFlatten($db->fetchAll($db->select()->from('table.metas')
-			->join('table.relationships', 'table.relationships.mid = table.metas.mid')
-			->where('table.relationships.cid = ?', $archive['cid'])
-			->where('table.metas.type = ?', 'category')
-			->order('table.metas.order', Typecho_Db::SORT_ASC)), 'slug')));
 		//生成url
 		$type = $archive['type'];
 		$routeExists = (NULL != Typecho_Router::get($type));
 		$archive['pathinfo'] = $routeExists ? Typecho_Router::url($type, $archive) : '#';
 		$archive['permalink'] = Typecho_Common::url($archive['pathinfo'], $options->index);
 		$archive_result = $archive_result . "\t<url>\n";
-		$archive_result = $archive_result . "\t\t<loc>" . $archive['permalink'] . "</loc>\n";
+		$archive_result = $archive_result . "\t\t<loc>" . getPermalink($archive['cid']) . "</loc>\n";
 		$archive_result = $archive_result . "\t\t<lastmod>" . date('Y-m-d', $archive['modified']) . "</lastmod>\n";
 		$archive_result = $archive_result . "\t\t<changefreq>always</changefreq>\n";
 		$archive_result = $archive_result . "\t\t<priority>0.8</priority>\n";
@@ -172,17 +166,7 @@ function submit($function, $web) //推送百度
 			if ($postnum >= 20) {
 				for ($x = 0; $x < 20; $x++) {
 					$archive = $archives[$x];
-					//获取文章分类
-					$archive['category'] = urlencode(current(Typecho_Common::arrayFlatten($db->fetchAll($db->select()->from('table.metas')
-						->join('table.relationships', 'table.relationships.mid = table.metas.mid')
-						->where('table.relationships.cid = ?', $archive['cid'])
-						->where('table.metas.type = ?', 'category')
-						->order('table.metas.order', Typecho_Db::SORT_ASC)), 'slug')));
-					$type = $archive['type'];
-					$routeExists = (NULL != Typecho_Router::get($type));
-					$archive['pathinfo'] = $routeExists ? Typecho_Router::url($type, $archive) : '#';
-					$archive['permalink'] = Typecho_Common::url($archive['pathinfo'], $options->index);
-					array_push($urls, $archive['permalink']);
+					array_push($urls, getPermalink($archive['cid']));
 				}
 			} else {
 				if ($web === 'web') {
@@ -197,17 +181,7 @@ function submit($function, $web) //推送百度
 
 		if ($function === 'archive_all') {
 			foreach ($archives as $archive) {
-				//获取文章分类
-				$archive['category'] = urlencode(current(Typecho_Common::arrayFlatten($db->fetchAll($db->select()->from('table.metas')
-					->join('table.relationships', 'table.relationships.mid = table.metas.mid')
-					->where('table.relationships.cid = ?', $archive['cid'])
-					->where('table.metas.type = ?', 'category')
-					->order('table.metas.order', Typecho_Db::SORT_ASC)), 'slug')));
-				$type = $archive['type'];
-				$routeExists = (NULL != Typecho_Router::get($type));
-				$archive['pathinfo'] = $routeExists ? Typecho_Router::url($type, $archive) : '#';
-				$archive['permalink'] = Typecho_Common::url($archive['pathinfo'], $options->index);
-				array_push($urls, $archive['permalink']);
+				array_push($urls, getPermalink($archive['cid']));
 			}
 		}
 	}
@@ -243,5 +217,58 @@ function submit($function, $web) //推送百度
 	}
 	if ($web === 'api') {
 		return "success";
+	}
+}
+//生成永久链接
+function getPermalink($cid)
+{
+	$db = Typecho_Db::get();
+	// 获取文章的创建时间和slug
+	$row = $db->fetchRow($db->select('table.contents.created', 'table.contents.slug', 'table.contents.type', 'table.contents.cid')
+		->from('table.contents')
+		->where('table.contents.type = ?', 'post')
+		->where('table.contents.cid = ?', $cid)
+		->limit(1));
+	$slug = $row['slug'];
+	// 获取文章的创建时间
+	$created = $row['created'];
+	$year = date('Y', $created);
+	$month = date('m', $created);
+	$day = date('d', $created);
+	// 获取分类
+	$category = $db->fetchRow($db->select('table.metas.slug')
+		->from('table.relationships')
+		->join('table.metas', 'table.metas.mid = table.relationships.mid')
+		->where('table.relationships.cid = ?', $cid)
+		->where('table.metas.type = ?', 'category')
+		->limit(1));
+	$category = $category['slug'];
+	// 获取目录分类
+	$directory = '';
+	$parent = $db->fetchRow($db->select('table.metas.parent')
+		->from('table.metas')
+		->where('table.metas.type = ?', 'category')
+		->where('table.metas.slug = ?', $category)
+		->limit(1));
+	while ($parent['parent'] != 0) {
+		$parent = $db->fetchRow($db->select('table.metas.slug', 'table.metas.parent')
+			->from('table.metas')
+			->where('table.metas.type = ?', 'category')
+			->where('table.metas.mid = ?', $parent['parent'])
+			->limit(1));
+		$directory = $parent['slug'] . '/' . $directory;
+	}
+	$directory = $directory . $category;
+	// 返回链接
+	if ($row) {
+		$options = Typecho_Widget::widget('Widget_Options');
+		$permalink = Typecho_Common::url(Typecho_Router::url($row['type'], $row), $options->index);
+		$permalink = str_replace('{slug}', $slug, $permalink);
+		$permalink = str_replace('{category}', $category, $permalink);
+		$permalink = str_replace('{directory}', $directory, $permalink);
+		$permalink = str_replace('{year}', $year, $permalink);
+		$permalink = str_replace('{month}', $month, $permalink);
+		$permalink = str_replace('{day}', $day, $permalink);
+		return $permalink;
 	}
 }

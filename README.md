@@ -89,6 +89,11 @@
 
 修复 各类自定义文章链接自动推送百度出现的链接错误（建议所有用户更新到此版本）
 
+### 1.7
+
+修复 api推送最新文章的异常报错
+新增 api缓存头，避免CDN进行缓存
+
 *卸禁用后删除插件，再更新！插件目录设置777权限*
 
 博客：[https://www.zhaoyingtian.com/archives/93.html](https://www.zhaoyingtian.com/archives/93.html)

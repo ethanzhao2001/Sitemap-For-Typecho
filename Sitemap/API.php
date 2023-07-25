@@ -3,6 +3,10 @@ class Sitemap_API extends Typecho_Widget implements Widget_Interface_Do
 {
     public function action()
     {
+        //设置Cache-Control禁止CDN和客户端缓存
+        header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
+        header("Cache-Control: post-check=0, pre-check=0", false);
+        header("Pragma: no-cache");
         //检查api token
         if (Helper::options()->plugin('Sitemap')->api_token == null) {
             echo 'api closed';
@@ -46,4 +50,3 @@ class Sitemap_API extends Typecho_Widget implements Widget_Interface_Do
         }
     }
 }
-?>

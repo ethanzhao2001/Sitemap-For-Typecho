@@ -148,8 +148,8 @@ function submit($function, $web) //推送百度
 			->order('table.contents.created', Typecho_Db::SORT_DESC));
 		if ($function === 'archive') {
 			//获取文章数量
-			$stat = Typecho_Widget::widget('Widget_Stat');
-			$postnum = $stat->myPublishedPostsNum;
+			$postnum = count($archives);
+			//如果文章数量大于20，只推送最新的20篇
 			if ($postnum >= 20) {
 				for ($x = 0; $x < 20; $x++) {
 					$archive = $archives[$x];

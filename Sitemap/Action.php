@@ -102,6 +102,7 @@ function update($function, $web)
 }
 function submit($function, $web) //推送百度
 {
+	$NumberOfLatestArticles = (int)Helper::options()->plugin('Sitemap')->NumberOfLatestArticles;
 	//检查baidu_url
 	if (Helper::options()->plugin('Sitemap')->baidu_url == NULL) {
 		if ($web === 'web') {
@@ -137,6 +138,7 @@ function submit($function, $web) //推送百度
 		foreach ($categorys as $category) {
 			array_push($urls, getPermalinkCategory($category));
 		}
+		echo count($urls);
 	}
 	if ($function === 'archive' || $function === 'archive_all') {
 		$urls = array();
@@ -149,19 +151,19 @@ function submit($function, $web) //推送百度
 		if ($function === 'archive') {
 			//获取文章数量
 			$postnum = count($archives);
-			//如果文章数量大于20，只推送最新的20篇
-			if ($postnum >= 20) {
-				for ($x = 0; $x < 20; $x++) {
+			//如果文章数量大于$NumberOfLatestArticles，只推送最新的$NumberOfLatestArticles篇
+			if ($postnum >= $NumberOfLatestArticles) {
+				for ($x = 0; $x < $NumberOfLatestArticles; $x++) {
 					$archive = $archives[$x];
 					array_push($urls, getPermalink($archive['cid']));
 				}
 			} else {
 				if ($web === 'web') {
-					Typecho_Widget::widget('Widget_Notice')->set(_t("文章小于20篇"), 'error');
+					Typecho_Widget::widget('Widget_Notice')->set(_t("文章小于" . $NumberOfLatestArticles . "篇"), 'error');
 					return;
 				}
 				if ($web === 'api') {
-					return "Number of articles less than 20";
+					return "Number of articles less than " . $NumberOfLatestArticles;
 				}
 			}
 		}
@@ -172,10 +174,7 @@ function submit($function, $web) //推送百度
 			}
 		}
 	}
-	$url_list = "";
-	foreach ($urls as $url) {
-		$url_list = $url_list . "\n" . $url;
-	}
+
 	$api = Helper::options()->plugin('Sitemap')->baidu_url;
 	$ch = curl_init();
 	$options =  array(
@@ -190,20 +189,41 @@ function submit($function, $web) //推送百度
 	$result = json_decode($result_json, true);
 	//获取时间
 	$time = date('Y-m-d H:i:s', time());
-	//写入日志
-	$log = '【' . $time . '】' . $web . '成功推送' . $result['success'] . '条，今日剩余可推送' . $result['remain'] . '条' . $url_list . "\n";
-	if (Helper::options()->plugin('Sitemap')->PluginLog == 1) {
-		file_put_contents(__TYPECHO_ROOT_DIR__ . __TYPECHO_PLUGIN_DIR__ . '/Sitemap/log.txt', $log, FILE_APPEND);
-	}
-	//返回提示
-	if ($web === 'web') {
-		Typecho_Widget::widget('Widget_Notice')->set(_t("推送完成"), 'success');
-		//替换$url_list中的\n为<br>
-		$url_list = str_replace("\n", "<br>", $url_list);
-		return '成功推送' . $result['success'] . '条，今日剩余可推送' . $result['remain'] . '条' . "\n" . "\n" . "<p>" . $url_list . "</p>";
-	}
-	if ($web === 'api') {
-		return "success";
+	//推送状态判断{"error":400,"message":"over quota"}
+	if ($result['error'] == 400) {
+		if ($result['message'] == "over quota") {
+			$message = '超过推送限额';
+		}
+		if ($result['message'] == "empty content") {
+			$message = '推送网站列表为空';
+		}
+		//写入日志
+		$log = '【' . $time . '】' . $web . '推送失败：' . $message . "\n";
+		if (Helper::options()->plugin('Sitemap')->PluginLog == 1) {
+			file_put_contents(__TYPECHO_ROOT_DIR__ . __TYPECHO_PLUGIN_DIR__ . '/Sitemap/log.txt', $log, FILE_APPEND);
+		}
+		//返回提示
+		if ($web === 'web') {
+			Typecho_Widget::widget('Widget_Notice')->set(_t("推送失败"), 'error');
+			return '推送失败：' . $message;
+		}
+		if ($web === 'api') {
+			return $result_json;
+		}
+	} else {
+		//写入日志
+		$log = '【' . $time . '】' . $web . '成功推送：' . $result['success'] . '条，今日剩余可推送' . $result['remain'] . '条' . $url_list . "\n";
+		if (Helper::options()->plugin('Sitemap')->PluginLog == 1) {
+			file_put_contents(__TYPECHO_ROOT_DIR__ . __TYPECHO_PLUGIN_DIR__ . '/Sitemap/log.txt', $log, FILE_APPEND);
+		}
+		//返回提示
+		if ($web === 'web') {
+			Typecho_Widget::widget('Widget_Notice')->set(_t("成功推送"), 'success');
+			return '成功推送：' . $result['success'] . '条，今日剩余可推送' . $result['remain'] . '条';
+		}
+		if ($web === 'api') {
+			return $result_json;
+		}
 	}
 }
 //生成文章永久链接

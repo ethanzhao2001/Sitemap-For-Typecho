@@ -5,7 +5,7 @@
  * 
  * @package Sitemap
  * @author 呆小萌
- * @version 1.7
+ * @version 1.8
  * @link https://www.zhaoyingtian.com/archives/93.html
  */
 class Sitemap_Plugin implements Typecho_Plugin_Interface
@@ -54,15 +54,27 @@ class Sitemap_Plugin implements Typecho_Plugin_Interface
      */
     public static function config(Typecho_Widget_Helper_Form $form)
     {
-        if (isset($_GET['action']) && $_GET['action']=== 'update_sitemap') {
+        if (isset($_GET['action']) && $_GET['action'] === 'update_sitemap') {
             self::update_sitemap();
         }
         $sitemap_cachetime = new Typecho_Widget_Helper_Form_Element_Text('sitemap_cachetime', NULL, '7', _t('Sitemap 缓存时间'), '单位（天）');
         $form->addInput($sitemap_cachetime);
         $baidu_url = new Typecho_Widget_Helper_Form_Element_Text('baidu_url', NULL, NULL, _t('百度推送接口 URL'), '请在<a href="https://ziyuan.baidu.com/">百度搜索资源平台</a>查看，目前仅支持普通收录');
         $form->addInput($baidu_url);
-        $web_token = new Typecho_Widget_Helper_Form_Element_Text('api_token', NULL, Typecho_Common::randString(32), _t('API token'), '自动生成无需修改，留空则不开启API功能<br>' . Helper::options()->index . '/sitemap-api?sitemap=[update]&push=[main/all/new]&token=[API_TOKEN]');
+
+        try {
+            if (Helper::options()->plugin('Sitemap')->api_token == null) {
+                $randString = Typecho_Common::randString(32);
+            } else {
+                $randString = Helper::options()->plugin('Sitemap')->api_token;
+            }
+        } catch (Exception $e) {
+            $randString = Typecho_Common::randString(32);
+        }
+        $web_token = new Typecho_Widget_Helper_Form_Element_Text('api_token', NULL, $randString, _t('API token'), '自动生成无需修改，留空则不开启API功能<br>' . Helper::options()->index . '/sitemap-api?sitemap=update&push=new&token=' . $randString);
         $form->addInput($web_token);
+        $NumberOfLatestArticles = new Typecho_Widget_Helper_Form_Element_Text('NumberOfLatestArticles', NULL, '5', _t('推送最新文章数量'), '单位（篇）');
+        $form->addInput($NumberOfLatestArticles);
         $AutoPush = new Typecho_Widget_Helper_Form_Element_Radio('AutoPush', array(0 => _t('不开启'), 1 => _t('开启')), 0, _t('自动推送文章'), '发布文章自动推送当前文章');
         $form->addInput($AutoPush);
         $AutoSitemap = new Typecho_Widget_Helper_Form_Element_Radio('AutoSitemap', array(0 => _t('不开启'), 1 => _t('开启')), 0, _t('自动更新Sitemap'), '发布文章更新Sitemap，可能降低文章发布速度');
@@ -115,7 +127,7 @@ class Sitemap_Plugin implements Typecho_Plugin_Interface
     public static function auto($contents, $class)
     {
         //如果文章属性为隐藏或滞后发布
-        if( 'publish' != $contents['visibility'] || $contents['created'] > time()){
+        if ('publish' != $contents['visibility'] || $contents['created'] > time()) {
             return;
         }
         //通过创建时间查找cid
@@ -147,7 +159,7 @@ class Sitemap_Plugin implements Typecho_Plugin_Interface
             //写入日志
             $log = '【' . $time . '】' . 'auto' . '成功推送' . $result['success'] . '条，今日剩余可推送' . $result['remain'] . '条' . "\n" . $url . "\n";
             if (Helper::options()->plugin('Sitemap')->baidu_url == null) {
-                $log = '【' . $time . '】' . 'auto' . '推送失败，未填写百度推送接口 URL' ;
+                $log = '【' . $time . '】' . 'auto' . '推送失败，未填写百度推送接口 URL';
             } else {
                 $api = Helper::options()->plugin('Sitemap')->baidu_url;
             }

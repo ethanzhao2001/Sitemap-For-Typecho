@@ -94,6 +94,11 @@
 修复 api推送最新文章的异常报错
 新增 api缓存头，避免CDN进行缓存
 
+### 1.8
+
+修复 百度推送更新接口，更新百度推送的方法。
+增加 自定义设置推送最新文章数量
+
 *卸禁用后删除插件，再更新！插件目录设置777权限*
 
 博客：[https://www.zhaoyingtian.com/archives/93.html](https://www.zhaoyingtian.com/archives/93.html)
